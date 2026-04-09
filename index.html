@@ -301,6 +301,64 @@
     }
 
     footer a:hover { text-decoration: underline; }
+
+    /* ── Contact form ── */
+    .contact-tagline {
+      font-size: 0.88rem;
+      color: var(--muted);
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"] {
+      width: 100%;
+      font-family: inherit;
+      font-size: 0.95rem;
+      color: var(--text);
+      padding: 10px 12px;
+      border: 1.5px solid var(--sand);
+      border-radius: var(--radius-sm);
+      background: var(--white);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="tel"]:focus {
+      border-color: var(--green);
+    }
+
+    button[type="button"] {
+      width: 100%;
+      margin-top: 8px;
+      padding: 12px;
+      background: var(--green);
+      color: var(--white);
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    button[type="button"]:hover { background: var(--teal); }
+
+    .contact-confirm {
+      text-align: center;
+      padding: 12px 0;
+    }
+
+    .contact-confirm p {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--teal);
+      margin-bottom: 16px;
+    }
   </style>
 </head>
 <body>
@@ -383,11 +441,7 @@
       <div id="emptyState" class="empty-state">Enter your substrate details above to see savings.</div>
       <div id="resultsContent" style="display:none;">
         <div class="results-grid">
-          <div class="result-item">
-            <div class="result-label">New substrate needed</div>
-            <div class="result-value" id="outNewSubstrate">–</div>
-          </div>
-          <div class="result-item">
+<div class="result-item">
             <div class="result-label" id="outEnergyLabel">Energy usage</div>
             <div class="result-value" id="outEnergy">–</div>
           </div>
@@ -399,12 +453,39 @@
             <div class="result-label">Substrate reused</div>
             <div class="result-value" id="outReused">–</div>
           </div>
+          <div class="result-item">
+            <div class="result-label">CO₂ savings</div>
+            <div class="result-value" id="outCO2">–</div>
+          </div>
         </div>
         <div class="savings-box" style="margin-top:12px;">
           <div class="result-label">Estimated annual savings</div>
           <div class="result-value" id="outSavings">–</div>
           <div class="result-sub">vs. buying all new substrate</div>
         </div>
+      </div>
+    </div>
+    <!-- Contact form – shown once results are visible -->
+    <div class="card" id="contactCard" style="display:none;">
+      <div class="card-title">Get in touch</div>
+      <div id="contactForm">
+        <p class="contact-tagline">Like what you see? Get in touch with one of our sales representatives.</p>
+        <div class="field">
+          <label for="contactName">Name</label>
+          <input type="text" id="contactName" placeholder="Your name" />
+        </div>
+        <div class="field">
+          <label for="contactEmail">Email</label>
+          <input type="email" id="contactEmail" placeholder="you@example.com" />
+        </div>
+        <div class="field">
+          <label for="contactPhone">Phone</label>
+          <input type="tel" id="contactPhone" placeholder="+1 234 567 890" />
+        </div>
+        <button type="button" id="contactSubmit">Send</button>
+      </div>
+      <div id="contactConfirm" style="display:none;" class="contact-confirm">
+        <p>Thanks! We'll be in touch soon.</p>
       </div>
     </div>
   </main>
@@ -418,6 +499,9 @@
     const KWH_PER_M3_PROCESSED   = 35;       // kWh per m³ of reused substrate
     const M3_PER_HOUR             = 3.5;      // machine throughput
     const DIESEL_KWH_EQUIVALENT   = 9.6;      // kWh per liter of diesel
+    const CO2_KG_PER_M3 = { peat: 150, coco: 75, rockwool: 25 }; // kg CO₂ per m³
+    const CO2_KG_PER_LITER_DIESEL = 2.640;  // kg CO₂ per liter of diesel
+    const CO2_KG_PER_KWH_ELEC     = 0.009;  // kg CO₂ per kWh of electricity
 
     const elPrice       = document.getElementById('price');
     const elVolume      = document.getElementById('volume');
@@ -427,6 +511,7 @@
     const elEnergyLabel = document.getElementById('energyPriceLabel');
     const elEnergyUnit  = document.getElementById('energyUnit');
     const elOutLabel    = document.getElementById('outEnergyLabel');
+    const elSubstrate   = document.getElementById('substrate');
 
     // Sync range display
     elReuse.addEventListener('input', () => {
@@ -434,19 +519,24 @@
       calculate();
     });
 
-    // Energy type switch
+    // Energy type switch — remember last value per type
+    const savedEnergyPrice = { diesel: '2.00', electricity: '0.20' };
+
     document.querySelectorAll('input[name="energy"]').forEach(r => {
       r.addEventListener('change', () => {
+        const prev = r.value === 'diesel' ? 'electricity' : 'diesel';
+        savedEnergyPrice[prev] = elEnergyPrice.value;
         const isDiesel = r.value === 'diesel';
         elEnergyLabel.textContent = isDiesel ? 'Price per liter of diesel' : 'Price per kWh (electricity)';
         elEnergyUnit.textContent  = isDiesel ? '€/L' : '€/kWh';
-        elEnergyPrice.value       = isDiesel ? '2.00' : '0.20';
+        elEnergyPrice.value       = savedEnergyPrice[r.value];
         elOutLabel.textContent    = isDiesel ? 'Diesel usage' : 'Electricity usage';
         calculate();
       });
     });
 
     [elPrice, elVolume, elEnergyPrice].forEach(el => el.addEventListener('input', calculate));
+    elSubstrate.addEventListener('change', calculate);
 
     function fmt(n, decimals = 0) {
       return n.toLocaleString('en-EU', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
@@ -461,8 +551,9 @@
 
       const hasInputs = !isNaN(price) && price > 0 && !isNaN(volume) && volume > 0;
 
-      document.getElementById('emptyState').style.display    = hasInputs ? 'none'  : 'block';
-      document.getElementById('resultsContent').style.display = hasInputs ? 'block' : 'none';
+      document.getElementById('emptyState').style.display     = hasInputs ? 'none'  : 'block';
+      document.getElementById('resultsContent').style.display  = hasInputs ? 'block' : 'none';
+      document.getElementById('contactCard').style.display     = hasInputs ? 'block' : 'none';
 
       if (!hasInputs) return;
 
@@ -482,10 +573,16 @@
         - energyCost                            // energy cost
         - hours * OPERATOR_COST_PER_HOUR;       // operator cost
 
+      const co2KgPerM3  = CO2_KG_PER_M3[elSubstrate.value] || 0;
+      const co2Energy   = isDiesel
+        ? energyLiters * CO2_KG_PER_LITER_DIESEL
+        : energyKwh    * CO2_KG_PER_KWH_ELEC;
+      const co2Tonnes   = (reusedVol * co2KgPerM3 + co2Energy) / 1000;
+
       // Display
-      document.getElementById('outNewSubstrate').textContent = fmt(newSubstrate, 1) + ' m³';
-      document.getElementById('outReused').textContent       = fmt(reusedVol, 1) + ' m³';
+document.getElementById('outReused').textContent       = fmt(reusedVol, 1) + ' m³';
       document.getElementById('outHours').textContent        = fmt(hours, 0) + ' h';
+      document.getElementById('outCO2').textContent          = fmt(co2Tonnes, 1) + ' t CO₂';
 
       if (isDiesel) {
         document.getElementById('outEnergy').textContent = fmt(energyLiters, 0) + ' L';
@@ -496,6 +593,17 @@
       const savingsEl = document.getElementById('outSavings');
       savingsEl.textContent = (savings >= 0 ? '€' : '-€') + fmt(Math.abs(savings), 0);
     }
+
+    // Contact form
+    document.getElementById('contactSubmit').addEventListener('click', () => {
+      const name  = document.getElementById('contactName').value.trim();
+      const email = document.getElementById('contactEmail').value.trim();
+      const phone = document.getElementById('contactPhone').value.trim();
+      if (!name || !email || !phone) return;
+      document.getElementById('contactForm').style.display    = 'none';
+      document.getElementById('contactConfirm').style.display = 'block';
+    });
+
 
     // Register service worker
     if ('serviceWorker' in navigator) {
