@@ -533,7 +533,7 @@
         - newSubstrate * price                  // cost of new substrate still needed
         - energyCost                            // energy cost
         - hours * OPERATOR_COST_PER_HOUR        // operator cost
-        + landfillFee * volume;                 // disposal fees avoided
+        + landfillFee * reusedVol;    // disposal fees avoided
 
       const co2KgPerM3  = CO2_KG_PER_M3[elSubstrate.value] || 0;
       const co2Energy   = isDiesel

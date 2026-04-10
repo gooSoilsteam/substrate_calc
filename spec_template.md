@@ -90,7 +90,7 @@ Derived values:
             - new_substrate * price
             - energy_cost
             - hours * OPERATOR_COST_PER_HOUR
-            + landfill_fee * volume
+            + landfill_fee * reused_volume
   
   tot_co2_eq = reused_volume * co2_for_chosen_substrate - co2_energy
 
