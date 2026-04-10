@@ -310,28 +310,8 @@
       line-height: 1.4;
     }
 
-    input[type="text"],
-    input[type="email"],
-    input[type="tel"] {
-      width: 100%;
-      font-family: inherit;
-      font-size: 0.95rem;
-      color: var(--text);
-      padding: 10px 12px;
-      border: 1.5px solid var(--sand);
-      border-radius: var(--radius-sm);
-      background: var(--white);
-      outline: none;
-      transition: border-color 0.15s;
-    }
-
-    input[type="text"]:focus,
-    input[type="email"]:focus,
-    input[type="tel"]:focus {
-      border-color: var(--green);
-    }
-
-    button[type="button"] {
+    .contact-link-btn {
+      display: block;
       width: 100%;
       margin-top: 8px;
       padding: 12px;
@@ -340,25 +320,13 @@
       font-family: inherit;
       font-size: 0.95rem;
       font-weight: 600;
-      border: none;
+      text-align: center;
+      text-decoration: none;
       border-radius: var(--radius-sm);
-      cursor: pointer;
       transition: background 0.15s;
     }
 
-    button[type="button"]:hover { background: var(--teal); }
-
-    .contact-confirm {
-      text-align: center;
-      padding: 12px 0;
-    }
-
-    .contact-confirm p {
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--teal);
-      margin-bottom: 16px;
-    }
+    .contact-link-btn:hover { background: var(--teal); }
   </style>
 </head>
 <body>
@@ -468,25 +436,8 @@
     <!-- Contact form – shown once results are visible -->
     <div class="card" id="contactCard" style="display:none;">
       <div class="card-title">Get in touch</div>
-      <div id="contactForm">
-        <p class="contact-tagline">Like what you see? Get in touch with one of our sales representatives.</p>
-        <div class="field">
-          <label for="contactName">Name</label>
-          <input type="text" id="contactName" placeholder="Your name" />
-        </div>
-        <div class="field">
-          <label for="contactEmail">Email</label>
-          <input type="email" id="contactEmail" placeholder="you@example.com" />
-        </div>
-        <div class="field">
-          <label for="contactPhone">Phone</label>
-          <input type="tel" id="contactPhone" placeholder="+1 234 567 890" />
-        </div>
-        <button type="button" id="contactSubmit">Send</button>
-      </div>
-      <div id="contactConfirm" style="display:none;" class="contact-confirm">
-        <p>Thanks! We'll be in touch soon.</p>
-      </div>
+      <p class="contact-tagline">Like what you see? Get in touch with one of our sales representatives.</p>
+      <a href="https://soilsteam.com/contact-us/" target="_blank" rel="noopener" class="contact-link-btn">Contact us</a>
     </div>
   </main>
 
@@ -594,15 +545,6 @@ document.getElementById('outReused').textContent       = fmt(reusedVol, 1) + ' m
       savingsEl.textContent = (savings >= 0 ? '€' : '-€') + fmt(Math.abs(savings), 0);
     }
 
-    // Contact form
-    document.getElementById('contactSubmit').addEventListener('click', () => {
-      const name  = document.getElementById('contactName').value.trim();
-      const email = document.getElementById('contactEmail').value.trim();
-      const phone = document.getElementById('contactPhone').value.trim();
-      if (!name || !email || !phone) return;
-      document.getElementById('contactForm').style.display    = 'none';
-      document.getElementById('contactConfirm').style.display = 'block';
-    });
 
 
     // Register service worker
