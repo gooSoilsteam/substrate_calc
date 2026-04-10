@@ -94,7 +94,7 @@ Derived values:
             - energy_cost
             - hours * OPERATOR_COST_PER_HOUR
   
-  tot_co2_eq = reused_volume * co2_for_chosen_substrate + co2_energy
+  tot_co2_eq = reused_volume * co2_for_chosen_substrate - co2_energy
 
 Edge cases:
   - Results hidden until both price and volume are > 0

@@ -528,7 +528,7 @@
       const co2Energy   = isDiesel
         ? energyLiters * CO2_KG_PER_LITER_DIESEL
         : energyKwh    * CO2_KG_PER_KWH_ELEC;
-      const co2Tonnes   = (reusedVol * co2KgPerM3 + co2Energy) / 1000;
+      const co2Tonnes   = (reusedVol * co2KgPerM3 - co2Energy) / 1000;
 
       // Display
 document.getElementById('outReused').textContent       = fmt(reusedVol, 1) + ' m³';
