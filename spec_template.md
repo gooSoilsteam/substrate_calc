@@ -27,7 +27,6 @@ What are you explicitly NOT building? This prevents scope creep.
 - User accounts, data persistence, or sharing
 - Backend / server-side computation
 - Multi-language support
-- Logging of contact form, will look at how the gui looks first.
 
 ---
 
@@ -47,13 +46,11 @@ What are you explicitly NOT building? This prevents scope creep.
 |-------|------|---------|-------|
 | Price per m³ of new substrate | number | — | Required, > 0, unit: €/m³ |
 | Total substrate per year | number | — | Required, > 0, unit: m³ |
+| Fee to get rid of old substrate | number | 0 | unit €/m³
 | Reuse percentage | range slider | 90% | 0–100%, step 1 |
 | Substrate type | dropdown | Peat | Should be linked to CO2 saved |
 | Energy type | radio toggle | Diesel | Options: Diesel / Electricity |
 | Energy price | number | €2.00/L (diesel) or €0.20/kWh (electricity) | Switches automatically when energy type changes |
-| Phone number  | number | | |
-| Name | text |  |  |
-| Email | text |  |  |
 
 ### Outputs / Results
 - **New substrate needed** — m³ still required after reuse
@@ -70,9 +67,9 @@ Constants:
   M3_PER_HOUR            = 3.5      (machine throughput)
   OPERATOR_COST_PER_HOUR = 25       (€/h)
   DIESEL_KWH_EQUIVALENT  = 9.6      (kWh per liter of diesel)
-  CO2_EQUIVALENT_PEAT = 150 (kg)
-  CO2_EQUIVALENT_COCO = 75 (kg)
-  CO2_EQUIVALENT_ROCKWOOL = 25 (kg)
+  CO2_EQUIVALENT_PEAT = 250 (kg)
+  CO2_EQUIVALENT_COCO = 70 (kg)
+  CO2_EQUIVALENT_ROCKWOOL = 125 (kg)
   CO2_EQUIVALENT_DIESEL = 2.640 (kg)
   CO2_EQUIVALENT_ELECTRICITY = 0.009 (kg)
 
@@ -93,6 +90,7 @@ Derived values:
             - new_substrate * price
             - energy_cost
             - hours * OPERATOR_COST_PER_HOUR
+            + landfill_fee * volume
   
   tot_co2_eq = reused_volume * co2_for_chosen_substrate - co2_energy
 
@@ -108,8 +106,7 @@ Edge cases:
 4. User can adjust reuse %, substrate type, and energy type/price
 5. All outputs update live as inputs change
 6. Once results are visible, a contact card appears below with flavor text: *"Like what you see? Get in touch with one of our sales representatives."*
-7. User optionally fills in name, email, and phone number and submits
-8. On submit, the form is replaced by a confirmation message (e.g. *"Thanks! We'll be in touch soon."*), then the user is returned to the calculator — no data is sent anywhere for now
+7. A "Contact us" button links to soilsteam.com/contact-us/ in a new tab
 
 ---
 

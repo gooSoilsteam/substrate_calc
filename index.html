@@ -361,6 +361,14 @@
       </div>
 
       <div class="field">
+        <label for="landfill">Fee to dispose of old substrate</label>
+        <div class="input-wrap">
+          <input type="number" id="landfill" min="0" step="0.01" value="0" />
+          <span class="unit">€/m³</span>
+        </div>
+      </div>
+
+      <div class="field">
         <label for="reuse">Reuse percentage</label>
         <div class="range-row">
           <input type="range" id="reuse" min="0" max="100" step="1" value="90" />
@@ -450,7 +458,7 @@
     const KWH_PER_M3_PROCESSED   = 35;       // kWh per m³ of reused substrate
     const M3_PER_HOUR             = 3.5;      // machine throughput
     const DIESEL_KWH_EQUIVALENT   = 9.6;      // kWh per liter of diesel
-    const CO2_KG_PER_M3 = { peat: 150, coco: 75, rockwool: 25 }; // kg CO₂ per m³
+    const CO2_KG_PER_M3 = { peat: 250, coco: 70, rockwool: 125 }; // kg CO₂ per m³
     const CO2_KG_PER_LITER_DIESEL = 2.640;  // kg CO₂ per liter of diesel
     const CO2_KG_PER_KWH_ELEC     = 0.009;  // kg CO₂ per kWh of electricity
 
@@ -463,6 +471,7 @@
     const elEnergyUnit  = document.getElementById('energyUnit');
     const elOutLabel    = document.getElementById('outEnergyLabel');
     const elSubstrate   = document.getElementById('substrate');
+    const elLandfill    = document.getElementById('landfill');
 
     // Sync range display
     elReuse.addEventListener('input', () => {
@@ -486,7 +495,7 @@
       });
     });
 
-    [elPrice, elVolume, elEnergyPrice].forEach(el => el.addEventListener('input', calculate));
+    [elPrice, elVolume, elEnergyPrice, elLandfill].forEach(el => el.addEventListener('input', calculate));
     elSubstrate.addEventListener('change', calculate);
 
     function fmt(n, decimals = 0) {
@@ -498,7 +507,8 @@
       const volume      = parseFloat(elVolume.value);
       const reuseRatio  = parseFloat(elReuse.value) / 100;
       const energyPrice = parseFloat(elEnergyPrice.value);
-      const isDiesel    = document.getElementById('energyDiesel').checked;
+      const isDiesel     = document.getElementById('energyDiesel').checked;
+      const landfillFee  = parseFloat(elLandfill.value) || 0;
 
       const hasInputs = !isNaN(price) && price > 0 && !isNaN(volume) && volume > 0;
 
@@ -522,7 +532,8 @@
         volume * price                          // what they'd spend on all new substrate
         - newSubstrate * price                  // cost of new substrate still needed
         - energyCost                            // energy cost
-        - hours * OPERATOR_COST_PER_HOUR;       // operator cost
+        - hours * OPERATOR_COST_PER_HOUR        // operator cost
+        + landfillFee * volume;                 // disposal fees avoided
 
       const co2KgPerM3  = CO2_KG_PER_M3[elSubstrate.value] || 0;
       const co2Energy   = isDiesel
