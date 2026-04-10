@@ -47,7 +47,7 @@ What are you explicitly NOT building? This prevents scope creep.
 | Price per m³ of new substrate | number | — | Required, > 0, unit: €/m³ |
 | Total substrate per year | number | — | Required, > 0, unit: m³ |
 | Fee to get rid of old substrate | number | 0 | unit €/m³
-| Reuse percentage | range slider | 90% | 0–100%, step 1 |
+| Reuse percentage | range slider | 90% | 60–100%, step 1 |
 | Substrate type | dropdown | Peat | Should be linked to CO2 saved |
 | Energy type | radio toggle | Diesel | Options: Diesel / Electricity |
 | Energy price | number | €2.00/L (diesel) or €0.20/kWh (electricity) | Switches automatically when energy type changes |
