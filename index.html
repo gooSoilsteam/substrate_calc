@@ -9,6 +9,18 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Application Insights loader stub (official Microsoft snippet).
+       Replace connectionString with the value from your App Insights resource in the Azure portal. -->
+  <script type="text/javascript">
+  !function(T,l,y){var S=T.location,k="script",D="instrumentationKey",C="ingestionendpoint",I="disableExceptionTracking",E="ai.device.",b="toLowerCase",w="crossOrigin",N="POST",e="appInsightsSDK",t=y.name||"appInsights";(y.name||T[e])&&(T[e]=t);var n=T[t]||function(d){var g=!1,f=!1,m={initialize:!0,queue:[],sv:"8",version:2,config:d};function v(e,t){var n={},a="Browser";return n[E+"id"]=a[b](),n[E+"type"]=a,n["ai.operation.name"]=S&&S.pathname||"_unknown_",n["ai.internal.sdkVersion"]="javascript:snippet_"+(m.sv||m.version),{time:function(){var e=new Date;function t(e){var t=""+e;return 1===t.length&&(t="0"+t),t}return e.getUTCFullYear()+"-"+t(e.getUTCMonth()+1)+"-"+t(e.getUTCDate())+"T"+t(e.getUTCHours())+":"+t(e.getUTCMinutes())+":"+t(e.getUTCSeconds())+"."+((e.getUTCMilliseconds()/1e3).toFixed(3)+"").slice(2,5)+"Z"}(),iKey:d.instrumentationKey,name:"Microsoft.ApplicationInsights."+e.replace(/-/g,"")+"."+t,sampleRate:100,tags:n,data:{baseData:{ver:2}}}}var h=d.url||y.src;if(h){function a(e){var t,n,a,i,r,o,s,c,u,p,l;g=!0,m.queue=[],f||(f=!0,t=h,s=function(){var e={},t=d.connectionString;if(t)for(var n=t.split(";"),a=0;a<n.length;a++){var i=n[a].split("=");if(i.length>1){var r=i.shift(),o=i.join("=");r[b]()===C&&(t=o),e[r]=o}}return e[D]||(e[D]=t),e}(),c=s[D]||"",u=s[C]||"https://dc.services.visualstudio.com/",p="//"+((u&&u.indexOf("//")>-1?u.split("//")[1]:u).split("/")[0]),l=new RegExp("(^|\\s)"+t+"(\\s|$)","g"),n=k,a=function(){var e=l.createElement(k);e.src=h;var t=d[w];return t&&(e[w]=t),e}(),i=l.getElementsByTagName(k)[0];i?i.parentNode.insertBefore(a,i):l.head.appendChild(a))}g=!0,m.queue.push.apply(m.queue,e||[])}T[t]&&!T[t].initialize&&(T[t].queue=T[t].queue||[]),function(e){function t(t){m[t]=function(){var e=arguments;g||m.queue.push(function(){m[t].apply(m,e)})}}for(var n=["trackEvent","trackPageView","trackException","trackTrace","trackMetric","trackDependencyData","flush","setAuthenticatedUserContext","clearAuthenticatedUserContext","startTrackPage","stopTrackPage","startTrackEvent","stopTrackEvent","addTelemetryInitializer","setInstrumentationKey"],a=0;a<n.length;a++)t(n[a]);return m}(m)}(n),T[t]=n}(window,document,{
+    src:              "https://js.monitor.azure.com/scripts/b/ai.2.min.js",
+    connectionString: "InstrumentationKey=70ab0e80-665e-4d6e-bcbf-e2eb136218c4;IngestionEndpoint=https://northeurope-2.in.applicationinsights.azure.com/;LiveEndpoint=https://northeurope.livediagnostics.monitor.azure.com/;ApplicationId=9e8ed40a-7ade-4560-bb10-2ef6ae44dc1b",
+    disableAjaxTracking:  true,
+    disableFetchTracking: true
+  });
+  </script>
+
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -534,6 +546,16 @@
       return n.toLocaleString('en-EU', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
     }
 
+    let trackTimer = null;
+    function scheduleTrack(props) {
+      clearTimeout(trackTimer);
+      trackTimer = setTimeout(() => {
+        if (window.appInsights) {
+          window.appInsights.trackEvent({ name: 'CalculationViewed', properties: props });
+        }
+      }, 1500);
+    }
+
     function calculate() {
       const price       = parseFloat(elPrice.value);
       const volume      = parseFloat(elVolume.value);
@@ -586,6 +608,17 @@ document.getElementById('outReused').textContent       = fmt(reusedVol, 1) + ' m
 
       const savingsEl = document.getElementById('outSavings');
       savingsEl.textContent = (savings >= 0 ? '€' : '-€') + fmt(Math.abs(savings), 0);
+
+      scheduleTrack({
+        substrate_type:  elSubstrate.value,
+        volume_m3:       volume,
+        price_eur_m3:    price,
+        reuse_pct:       Math.round(reuseRatio * 100),
+        landfill_fee:    landfillFee,
+        energy_type:     isDiesel ? 'diesel' : 'electricity',
+        savings_eur:     Math.round(savings),
+        co2_tonnes:      Math.round(co2Tonnes * 10) / 10
+      });
     }
 
 

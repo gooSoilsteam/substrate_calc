@@ -1,4 +1,4 @@
-const CACHE = 'soilsteam-calc-v2.7';
+const CACHE = 'soilsteam-calc-v2.8';
 const ASSETS = [
   '/',
   '/index.html',

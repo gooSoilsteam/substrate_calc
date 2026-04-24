@@ -31,10 +31,11 @@ What are you explicitly NOT building? This prevents scope creep.
 ---
 
 ## Technical Stack
-- Hosting: Azure Static Web App
+- Hosting: Azure Static Web App (Free tier)
 - Frontend: Vanilla HTML / CSS / JS (single `index.html`)
 - Backend: None
 - Database: None
+- Analytics: Azure Application Insights (frontend JS SDK — data sent directly from browser)
 - Special requirements: PWA (manifest + service worker), mobile-first, offline-capable
 
 ---
@@ -158,9 +159,42 @@ Weights used:  300, 400, 500, 600, 700
 
 ---
 
+## Analytics & Data Collection
+
+### What is collected
+When a user enters substrate price and volume and results become visible, a `CalculationViewed` event is sent to Azure Application Insights after 1.5 seconds of inactivity. The event contains only the calculation inputs and outputs:
+
+| Property | Example |
+|----------|---------|
+| `substrate_type` | `"peat"` |
+| `volume_m3` | `500` |
+| `price_eur_m3` | `80` |
+| `reuse_pct` | `90` |
+| `landfill_fee` | `0.50` |
+| `energy_type` | `"diesel"` |
+| `savings_eur` | `52004` |
+| `co2_tonnes` | `108.2` |
+
+No names, email addresses, device identifiers, or other personal data are included in events.
+
+### Storage
+All telemetry is stored in an Azure Log Analytics workspace in the EU region chosen at resource creation time (recommended: West Europe or North Europe). Data remains within the Azure subscription of the resource owner; Microsoft acts as data processor under their standard DPA.
+
+Recommended retention: 30–90 days (configurable in the Azure portal).
+
+### GDPR compliance — no consent banner required
+This implementation is consent-free for two reasons:
+
+1. **No cookies.** The Application Insights JS SDK does not set any cookies in the configuration used here. Under the ePrivacy Directive, a consent banner is only required for non-essential cookies or equivalent tracking technologies. No cookie = no banner required.
+2. **No personal data.** The collected properties are anonymous numerical and categorical values (volumes, prices, percentages). They cannot be traced back to an individual. GDPR obligations only apply to personal data; aggregate anonymous data is out of scope.
+
+IP addresses are masked by default in Application Insights (last octet zeroed out), which removes the main remaining personal-data concern.
+
+---
+
 ## Non-Functional Requirements
 - Performance: instant load, works offline after first visit (service worker)
-- Cost: static hosting only — no server compute
+- Cost: static hosting + minimal Azure Functions invocations; well within free-tier limits at trade-stand traffic levels
 - Accessibility: readable contrast ratios, labeled inputs; WCAG AA target
 - Browser support: all modern mobile browsers (Chrome, Safari iOS)
 
@@ -177,3 +211,4 @@ Things that are undecided or need clarification before or during build.
 | Date | Change |
 |------|--------|
 | 2026-04-09 | Initial spec written from requirements.md + implemented index.html |
+| 2026-04-24 | Added Azure Application Insights via managed Functions backend; custom event tracking for calculation inputs; GDPR compliance notes added |
