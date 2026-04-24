@@ -8,7 +8,7 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -41,11 +41,11 @@
       padding: 16px 20px;
       display: flex;
       align-items: center;
-      gap: 10px;
+      justify-content: center;
     }
 
     .logo-img {
-      height: 36px;
+      height: 100px;
       width: auto;
     }
 
@@ -59,14 +59,14 @@
     }
 
     h1 {
-      font-size: 1.1rem;
-      font-weight: 600;
+      font-size: 1.6rem;
+      font-weight: 700;
       color: var(--teal);
-      margin-bottom: 4px;
+      margin-bottom: 6px;
     }
 
     .subtitle {
-      font-size: 0.85rem;
+      font-size: 1rem;
       color: var(--muted);
       margin-bottom: 24px;
     }
@@ -81,10 +81,10 @@
     }
 
     .card-title {
-      font-size: 0.75rem;
-      font-weight: 600;
+      font-size: 0.98rem;
+      font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.04em;
       color: var(--green);
       margin-bottom: 16px;
     }
@@ -186,13 +186,37 @@
 
     input[type="range"] {
       flex: 1;
-      height: 4px;
-      border-radius: 2px;
-      background: var(--sand);
+      height: 6px;
+      border-radius: 3px;
+      background: linear-gradient(to right, var(--green) var(--fill, 75%), var(--sand) var(--fill, 75%));
       cursor: pointer;
-      accent-color: var(--green);
       padding: 0;
       border: none;
+      -webkit-appearance: none;
+      appearance: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--green);
+      cursor: pointer;
+      border: 3px solid var(--white);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--green);
+      cursor: pointer;
+      border: 3px solid var(--white);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.18);
     }
 
     /* ── Energy toggle ── */
@@ -338,7 +362,7 @@
 
   <main>
     <h1>Substrate Savings Calculator</h1>
-    <p class="subtitle">See how much you can save by reusing substrate with our machine.</p>
+    <p class="subtitle">See how much you can save by reusing substrate with our SoilSaver!</p>
 
     <!-- Inputs -->
     <div class="card">
@@ -443,7 +467,7 @@
     </div>
     <!-- Contact form – shown once results are visible -->
     <div class="card" id="contactCard" style="display:none;">
-      <div class="card-title">Get in touch</div>
+      <div class="card-title">Get in touch!</div>
       <p class="contact-tagline">Like what you see? Get in touch with one of our sales representatives.</p>
       <a href="https://soilsteam.com/contact-us/" target="_blank" rel="noopener" class="contact-link-btn">Contact us</a>
     </div>
@@ -473,11 +497,19 @@
     const elSubstrate   = document.getElementById('substrate');
     const elLandfill    = document.getElementById('landfill');
 
+    function updateSliderFill(el) {
+      const pct = ((el.value - el.min) / (el.max - el.min)) * 100;
+      el.style.setProperty('--fill', pct + '%');
+    }
+
     // Sync range display
     elReuse.addEventListener('input', () => {
       elReuseDisp.textContent = elReuse.value + '%';
+      updateSliderFill(elReuse);
       calculate();
     });
+
+    updateSliderFill(elReuse);
 
     // Energy type switch — remember last value per type
     const savedEnergyPrice = { diesel: '2.00', electricity: '0.20' };
